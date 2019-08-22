@@ -2,7 +2,18 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const morgan = require('morgan')
+
 app.use(bodyParser.json())
+
+morgan.token('data', (req, res) => {
+    return JSON.stringify(req.body)
+})
+
+
+
+app.use(morgan(':time :url :method :status :data :res[content:length] - :response-time ms'))
+
 
 const generateId = () => {
     return Math.floor(Math.random() * 10000)
@@ -65,7 +76,7 @@ app.post('/api/persons', (request, response) => {
         number : body.number,
         id : generateId()
     }
-    console.log(person)
+    
     persons = persons.concat(person)
     response.json(person)
 })
@@ -92,6 +103,10 @@ let persons = [
         id : 4
     }
 ]
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({error : 'unknown endpoint'})
+}
 
 
 const PORT = 3001
